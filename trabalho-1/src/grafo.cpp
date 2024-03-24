@@ -1,6 +1,6 @@
 #include "../include/grafo.hpp"
 #include <iostream>
-#include <cstdlib>
+// #include <cstdlib>
 
 using namespace std;
 
@@ -21,7 +21,7 @@ Grafo::Grafo(int tamanho)
 {
     this->E = 0;
     this->V = tamanho;
-    this->Adj = (Node **)malloc(sizeof(Node *) * tamanho);
+    this->Adj = new Node *[tamanho]; // (Node **)malloc(sizeof(Node *) * tamanho);
 
     for (int v = 0; v < tamanho; v++)
         this->Adj[v] = nullptr;
@@ -43,7 +43,7 @@ Grafo::~Grafo()
         if (this->Adj[i] != nullptr)
             delete this->Adj[i];
 
-    free(this->Adj);
+    delete[] this->Adj;
 }
 
 Grafo *Grafo::insere_aresta(int v1, int v2, int peso)
