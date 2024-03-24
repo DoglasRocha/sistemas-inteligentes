@@ -12,11 +12,11 @@ public:
 
 class Grafo
 {
+public:
     int E, V;
     Node **Adj;
     void insere_aresta_direcionada(int origem, int destino, int peso);
 
-public:
     Grafo();
     Grafo(int tamanho);
     ~Grafo();

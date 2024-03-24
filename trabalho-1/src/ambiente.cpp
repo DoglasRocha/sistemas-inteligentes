@@ -20,3 +20,18 @@ void Ambiente::imprime_mapa()
 {
     mapa->imprime();
 }
+
+int Ambiente::get_qtd_cidades()
+{
+    return mapa->V;
+}
+
+int Ambiente::get_tam_mapa()
+{
+    return mapa->V + mapa->E;
+}
+
+Node *Ambiente::get_cidade(int id)
+{
+    return mapa->Adj[id];
+}
