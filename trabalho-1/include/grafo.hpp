@@ -14,11 +14,13 @@ class Grafo
 {
     int E, V;
     Node **Adj;
+    void insere_aresta_direcionada(int origem, int destino, int peso);
 
 public:
+    Grafo();
     Grafo(int tamanho);
     ~Grafo();
 
-    Grafo *insere_aresta(int origem, int destino, int peso);
+    Grafo *insere_aresta(int v1, int v2, int peso);
     void imprime();
 };

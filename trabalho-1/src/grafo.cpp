@@ -1,5 +1,6 @@
 #include "../include/grafo.hpp"
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -20,21 +21,40 @@ Grafo::Grafo(int tamanho)
 {
     this->E = 0;
     this->V = tamanho;
-    this->Adj = new Node *[tamanho];
+    this->Adj = (Node **)malloc(sizeof(Node *) * tamanho);
 
     for (int v = 0; v < tamanho; v++)
         this->Adj[v] = nullptr;
 }
 
-Grafo::~Grafo()
+Grafo::Grafo()
 {
-    for (int i = 0; i < this->V; i++)
-        delete this->Adj[i];
-
-    delete this->Adj;
+    this->E = 0;
+    this->V = 0;
+    this->Adj = nullptr;
 }
 
-Grafo *Grafo::insere_aresta(int origem, int destino, int peso)
+Grafo::~Grafo()
+{
+    if (this->Adj == nullptr)
+        return;
+
+    for (int i = 0; i < this->V; i++)
+        if (this->Adj[i] != nullptr)
+            delete this->Adj[i];
+
+    free(this->Adj);
+}
+
+Grafo *Grafo::insere_aresta(int v1, int v2, int peso)
+{
+    this->insere_aresta_direcionada(v1, v2, peso);
+    this->insere_aresta_direcionada(v2, v1, peso);
+
+    return this;
+}
+
+void Grafo::insere_aresta_direcionada(int origem, int destino, int peso)
 {
     Node *aux;
     if (origem >= this->V || origem >= this->V)
@@ -51,8 +71,6 @@ Grafo *Grafo::insere_aresta(int origem, int destino, int peso)
 
         aux->next = new Node(destino, peso, nullptr);
     }
-
-    return this;
 }
 
 void Grafo::imprime()
