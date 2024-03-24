@@ -8,5 +8,8 @@ int main(void)
     a.imprime_mapa();
     Agente ag(&a);
 
+    ag.andar();
+    ag.imprime_caminho();
+
     return 0;
 }
