@@ -71,7 +71,7 @@ void Agente::andar()
             //     cout << visitados[k] << " ";
             // cout << "]" << endl;
 
-            cout << "n " << n << endl;
+            // cout << "n " << n << endl;
             proximo = aux;
         } while (visitados[n] && cidades_visitadas < qtd_cidades);
 
