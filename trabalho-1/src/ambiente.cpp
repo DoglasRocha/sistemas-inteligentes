@@ -3,9 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstring>
 using namespace std;
 
-/*Ambiente::Ambiente()
+Ambiente::Ambiente()
 {
     ifstream arquivoGrafo("grafo.txt"); //Primeira leitura, contagem de vértices
     int numVertices = 1;
@@ -16,7 +17,7 @@ using namespace std;
         while (getline(arquivoGrafo, aux)) ++numVertices; //Conta quantidade de linhas do arquivo para determinar a quantidade de vértices.
         //Cada linha contém pesos das arestas, sem incluir o próprio vértice ou arestas já adicionadas.
         
-        cout << numVertices << endl;
+        // cout << numVertices << endl;
         
         mapa = new Grafo(numVertices);
 
@@ -28,22 +29,26 @@ using namespace std;
 
     if (arquivoGrafo.is_open()) {
         string buffer;
-        stringstream ss(buffer);
-        int i, j;
+        int i = 0, j = 1;
 
         while(getline(arquivoGrafo, buffer)){  //Pega linha inteira (NÃO ENTRA AQUI)
-            while(getline(ss, buffer, ',')){  //Divide linha conforme virgulas  
-                const string tmp = ss.str();
-                const int cstr = atoi(tmp.c_str());
+            
+            char* coisa = strtok((char*)buffer.data(), ",");
+            j = i + 1;
+            while(coisa){  //Divide linha conforme virgulas  
+                
+                const int cstr = atoi(coisa);
                 mapa->insere_aresta(i, j, cstr);
-                //Não sei onde adicionar o loop pro i e j avançarem.
+                coisa = strtok(NULL, ",");
+                j++;
             }
+            i++;
         }
     }
 }
-*/
 
-Ambiente::Ambiente()
+
+/*Ambiente::Ambiente()
 {
     mapa = new Grafo(4);
 
@@ -52,7 +57,7 @@ Ambiente::Ambiente()
     mapa->insere_aresta(1, 2, 30)->insere_aresta(1, 3, 34);
 
     mapa->insere_aresta(2, 3, 12);
-}
+}*/
 
 
 Ambiente::~Ambiente()

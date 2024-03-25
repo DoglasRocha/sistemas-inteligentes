@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cmath>
 
+//#define DEBUG
+
 using namespace std;
 
 Agente::Agente(Ambiente *ambiente)
@@ -80,15 +82,21 @@ void Agente::andar()
 
         // proximo = atual;
 
-        cout << "media " << media << endl;
+        #ifdef DEBUG
+            cout << "media " << media << endl;
+        #endif
         int delta_e = -(proximo->weight - media);
         float prob = std::exp((float)delta_e / (t - i));
 
-        cout << "delta e " << delta_e << endl;
-        cout << "prob " << prob << endl;
+        #ifdef DEBUG
+            cout << "delta e " << delta_e << endl;
+            cout << "prob " << prob << endl;
+        #endif
         if (delta_e > 0)
         {
-            cout << "delta e positivo" << endl;
+            #ifdef DEBUG
+                cout << "delta e positivo" << endl;
+            #endif
             atual = proximo;
             visitados[proximo->id] = true;
 
@@ -99,12 +107,16 @@ void Agente::andar()
             }
 
             aux->next = new Node(proximo->id, proximo->weight, nullptr);
-            cout << "proximo " << proximo->id << endl;
+            #ifdef DEBUG
+                cout << "proximo " << proximo->id << endl;
+            #endif
             cidades_visitadas++;
         }
         else if ((double)rand() / RAND_MAX <= prob)
         {
-            cout << "delta e negativo " << endl;
+            #ifdef DEBUG
+                cout << "delta e negativo " << endl;
+            #endif
             atual = proximo;
             Node *aux = caminho;
             visitados[proximo->id] = true;
@@ -114,7 +126,9 @@ void Agente::andar()
             }
 
             aux->next = new Node(proximo->id, proximo->weight, nullptr);
-            cout << "proximo " << proximo->id << endl;
+            #ifdef DEBUG
+                cout << "proximo " << proximo->id << endl;
+            #endif
             cidades_visitadas++;
         }
 
