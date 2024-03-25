@@ -50,7 +50,8 @@ void Agente::andar()
     caminho = new Node(n_atual, 0, nullptr);
     int a;
 
-    for (int i = 0; i < 1000; i++)
+    int t = 75;
+    for (int i = 0; i < t; i++)
     {
         atual = ambiente->get_cidade(atual->id);
         // cin >> a;
@@ -74,12 +75,14 @@ void Agente::andar()
             // cout << "n " << n << endl;
             proximo = aux;
         } while (visitados[n] && cidades_visitadas < qtd_cidades);
+        if (n == origem && cidades_visitadas < qtd_cidades - 1)
+            continue;
 
         // proximo = atual;
 
         cout << "media " << media << endl;
         int delta_e = -(proximo->weight - media);
-        float prob = std::exp((float)delta_e / (1000 - i));
+        float prob = std::exp((float)delta_e / (t - i));
 
         cout << "delta e " << delta_e << endl;
         cout << "prob " << prob << endl;
@@ -123,9 +126,13 @@ void Agente::andar()
 void Agente::imprime_caminho()
 {
     Node *aux;
+    int tam = 0;
     for (aux = caminho; aux != nullptr; aux = aux->next)
     {
-        cout << aux->id << " ";
+        cout << aux->id << " (w: " << aux->weight << ") -> ";
+        tam += aux->weight;
     }
     cout << endl;
+
+    cout << "tamanho do caminho: " << tam << endl;
 }
