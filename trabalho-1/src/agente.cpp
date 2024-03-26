@@ -4,7 +4,7 @@
 #include <ctime>
 #include <cmath>
 
-//#define DEBUG
+// #define DEBUG
 
 using namespace std;
 
@@ -69,34 +69,33 @@ void Agente::andar()
                 ;
 
             n = aux->id;
-            // cout << "[ ";
-            // for (int k = 0; k < qtd_cidades; k++)
-            //     cout << visitados[k] << " ";
-            // cout << "]" << endl;
-
-            // cout << "n " << n << endl;
+#ifdef DEBUG
+            cout << "[ ";
+            for (int k = 0; k < qtd_cidades; k++)
+                cout << visitados[k] << " ";
+            cout << "]" << endl;
+#endif
             proximo = aux;
         } while (visitados[n] && cidades_visitadas < qtd_cidades);
         if (n == origem && cidades_visitadas < qtd_cidades - 1)
             continue;
 
-        // proximo = atual;
+            // proximo = atual;
 
-        #ifdef DEBUG
-            cout << "media " << media << endl;
-        #endif
+#ifdef DEBUG
+        cout << "media " << media << endl;
+#endif
         int delta_e = -(proximo->weight - media);
         float prob = std::exp((float)delta_e / (t - i));
 
-        #ifdef DEBUG
-            cout << "delta e " << delta_e << endl;
-            cout << "prob " << prob << endl;
-        #endif
+#ifdef DEBUG
+        cout << "prob " << prob << endl;
+#endif
         if (delta_e > 0)
         {
-            #ifdef DEBUG
-                cout << "delta e positivo" << endl;
-            #endif
+#ifdef DEBUG
+            cout << "delta e positivo" << endl;
+#endif
             atual = proximo;
             visitados[proximo->id] = true;
 
@@ -107,16 +106,13 @@ void Agente::andar()
             }
 
             aux->next = new Node(proximo->id, proximo->weight, nullptr);
-            #ifdef DEBUG
-                cout << "proximo " << proximo->id << endl;
-            #endif
             cidades_visitadas++;
         }
         else if ((double)rand() / RAND_MAX <= prob)
         {
-            #ifdef DEBUG
-                cout << "delta e negativo " << endl;
-            #endif
+#ifdef DEBUG
+            cout << "delta e negativo " << endl;
+#endif
             atual = proximo;
             Node *aux = caminho;
             visitados[proximo->id] = true;
@@ -126,9 +122,6 @@ void Agente::andar()
             }
 
             aux->next = new Node(proximo->id, proximo->weight, nullptr);
-            #ifdef DEBUG
-                cout << "proximo " << proximo->id << endl;
-            #endif
             cidades_visitadas++;
         }
 
