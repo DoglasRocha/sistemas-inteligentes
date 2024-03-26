@@ -8,38 +8,42 @@ using namespace std;
 
 Ambiente::Ambiente()
 {
-    ifstream arquivoGrafo("grafo.txt"); //Primeira leitura, contagem de vértices
+    ifstream arquivoGrafo("grafo.txt"); // Primeira leitura, contagem de vértices
     int numVertices = 1;
-    
-    if (arquivoGrafo.is_open()) {
-        string aux;
-        
-        while (getline(arquivoGrafo, aux)) ++numVertices; //Conta quantidade de linhas do arquivo para determinar a quantidade de vértices.
-        //Cada linha contém pesos das arestas, sem incluir o próprio vértice ou arestas já adicionadas.
-        
-        // cout << numVertices << endl;
-        
-        mapa = new Grafo(numVertices);
 
+    if (arquivoGrafo.is_open())
+    {
+        string aux;
+
+        while (getline(arquivoGrafo, aux))
+            ++numVertices; // Conta quantidade de linhas do arquivo para determinar a quantidade de vértices.
+        // Cada linha contém pesos das arestas, sem incluir o próprio vértice ou arestas já adicionadas.
+
+        // cout << numVertices << endl;
+
+        mapa = new Grafo(numVertices);
     }
-    
+
     arquivoGrafo.close();
 
-    arquivoGrafo.open("grafo.txt"); //Segunda leitura, construção das arestas
+    arquivoGrafo.open("grafo.txt"); // Segunda leitura, construção das arestas
 
-    if (arquivoGrafo.is_open()) {
+    if (arquivoGrafo.is_open())
+    {
         string buffer;
         int i = 0, j = 1;
 
-        while(getline(arquivoGrafo, buffer)){  //Pega linha inteira (NÃO ENTRA AQUI)
-            
-            char* coisa = strtok((char*)buffer.data(), ",");
+        while (getline(arquivoGrafo, buffer))
+        { // Pega linha inteira (NÃO ENTRA AQUI)
+
+            char *token = strtok((char *)buffer.data(), ",");
             j = i + 1;
-            while(coisa){  //Divide linha conforme virgulas  
-                
-                const int cstr = atoi(coisa);
+            while (token)
+            { // Divide linha conforme virgulas
+
+                const int cstr = atoi(token);
                 mapa->insere_aresta(i, j, cstr);
-                coisa = strtok(NULL, ",");
+                token = strtok(NULL, ",");
                 j++;
             }
             i++;
@@ -47,7 +51,7 @@ Ambiente::Ambiente()
     }
 }
 
-
+// instancia manual de grafo
 /*Ambiente::Ambiente()
 {
     mapa = new Grafo(4);
@@ -59,7 +63,6 @@ Ambiente::Ambiente()
     mapa->insere_aresta(2, 3, 12);
 }*/
 
-
 Ambiente::~Ambiente()
 {
     delete mapa;
@@ -67,7 +70,13 @@ Ambiente::~Ambiente()
 
 void Ambiente::imprime_mapa()
 {
+    cout << "Grafo: " << endl
+         << endl;
+
     mapa->imprime();
+
+    cout << endl
+         << endl;
 }
 
 int Ambiente::get_qtd_cidades()
