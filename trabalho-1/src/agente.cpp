@@ -23,6 +23,7 @@ Agente::Agente(Ambiente *ambiente)
 Agente::~Agente()
 {
     delete[] visitados;
+    delete caminho;
 }
 
 void Agente::computa_qtd_vizinhos_e_media(Node *cidade, int *qtd_vizinhos, int *media)
@@ -45,39 +46,38 @@ int Agente::escolhe_aleatorio(int limite)
 
 void Agente::andar()
 {
-    Node *proximo, *atual;
-    int n_atual = this->escolhe_aleatorio(this->qtd_cidades);
-    int origem = n_atual;
-    atual->id = n_atual;
-    caminho = new Node(n_atual, 0, nullptr);
-    int a;
+    Node *proximo, *atual, *aux;
+    int origem = this->escolhe_aleatorio(this->qtd_cidades);
+    atual = ambiente->get_cidade(origem);
+    caminho = new Node(origem, 0, nullptr);
 
     int t = 75;
     for (int i = 0; i < t; i++)
     {
+        int qtd_vizinhos = 0, media = 0, proximo_vizinho = 0;
         atual = ambiente->get_cidade(atual->id);
-        // cin >> a;
-        int qtd_vizinhos, media, n_next, n;
         this->computa_qtd_vizinhos_e_media(atual, &qtd_vizinhos, &media);
 
         do
         {
-            Node *aux;
+            proximo_vizinho = this->escolhe_aleatorio(qtd_vizinhos);
             int j;
-            n_next = this->escolhe_aleatorio(qtd_vizinhos);
-            for (j = 0, aux = atual; j < n_next; j++, aux = aux->next)
-                ;
+            for (j = 0, aux = atual; j < proximo_vizinho; j++)
+                aux = aux->next;
 
-            n = aux->id;
+            proximo = aux;
+#ifdef DEBUG
+            cout << "id proximo" << proximo->id << endl;
+#endif
+
 #ifdef DEBUG
             cout << "[ ";
             for (int k = 0; k < qtd_cidades; k++)
                 cout << visitados[k] << " ";
             cout << "]" << endl;
 #endif
-            proximo = aux;
-        } while (visitados[n] && cidades_visitadas < qtd_cidades);
-        if (n == origem && cidades_visitadas < qtd_cidades - 1)
+        } while (visitados[proximo->id] && cidades_visitadas < qtd_cidades);
+        if (proximo->id == origem && cidades_visitadas < qtd_cidades - 1)
             continue;
 
             // proximo = atual;
@@ -91,31 +91,15 @@ void Agente::andar()
 #ifdef DEBUG
         cout << "prob " << prob << endl;
 #endif
-        if (delta_e > 0)
+        if (delta_e > 0 || (double)rand() / RAND_MAX <= prob)
         {
 #ifdef DEBUG
-            cout << "delta e positivo" << endl;
+            cout << "delta e " << delta_e << endl;
 #endif
             atual = proximo;
             visitados[proximo->id] = true;
 
             Node *aux = caminho;
-            while (aux->next != nullptr)
-            {
-                aux = aux->next;
-            }
-
-            aux->next = new Node(proximo->id, proximo->weight, nullptr);
-            cidades_visitadas++;
-        }
-        else if ((double)rand() / RAND_MAX <= prob)
-        {
-#ifdef DEBUG
-            cout << "delta e negativo " << endl;
-#endif
-            atual = proximo;
-            Node *aux = caminho;
-            visitados[proximo->id] = true;
             while (aux->next != nullptr)
             {
                 aux = aux->next;
@@ -134,6 +118,13 @@ void Agente::imprime_caminho()
 {
     Node *aux;
     int tam = 0;
+
+#ifdef DEBUG
+    cout << "[ ";
+    for (int k = 0; k < qtd_cidades; k++)
+        cout << visitados[k] << " ";
+    cout << "]" << endl;
+#endif
     for (aux = caminho; aux != nullptr; aux = aux->next)
     {
         cout << aux->id << " (w: " << aux->weight << ") -> ";
