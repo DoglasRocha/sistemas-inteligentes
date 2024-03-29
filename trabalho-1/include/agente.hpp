@@ -2,6 +2,11 @@
 #include "ambiente.hpp"
 #include "grafo.hpp"
 
+typedef struct {
+    int id;
+    int weight;
+} State;
+
 class Agente
 {
     Ambiente *ambiente;

@@ -46,16 +46,21 @@ int Agente::escolhe_aleatorio(int limite)
 
 void Agente::andar()
 {
+    State atualS;
     Node *proximo, *atual, *aux;
     int origem = this->escolhe_aleatorio(this->qtd_cidades);
+    int qtd_vizinhos, media;
+    atualS.id = origem;
     atual = ambiente->get_cidade(origem);
     caminho = new Node(origem, 0, nullptr);
+    this->computa_qtd_vizinhos_e_media(atual, &qtd_vizinhos, &media);
+    atualS.weight = media;
 
     int t = 75;
     for (int i = 0; i < t; i++)
     {
-        int qtd_vizinhos = 0, media = 0, proximo_vizinho = 0;
-        atual = ambiente->get_cidade(atual->id);
+        int proximo_vizinho = 0;
+        atual = ambiente->get_cidade(atualS.id);
         this->computa_qtd_vizinhos_e_media(atual, &qtd_vizinhos, &media);
 
         do
@@ -67,7 +72,7 @@ void Agente::andar()
 
             proximo = aux;
 #ifdef DEBUG
-            cout << "id proximo" << proximo->id << endl;
+            cout << "id proximo " << proximo->id << endl;
 #endif
 
 #ifdef DEBUG
@@ -83,9 +88,9 @@ void Agente::andar()
             // proximo = atual;
 
 #ifdef DEBUG
-        cout << "media " << media << endl;
+        cout << "atual weight " << atualS.weight << endl;
 #endif
-        int delta_e = -(proximo->weight - media);
+        int delta_e = -(proximo->weight - atualS.weight);
         float prob = std::exp((float)delta_e / (t - i));
 
 #ifdef DEBUG
@@ -96,7 +101,8 @@ void Agente::andar()
 #ifdef DEBUG
             cout << "delta e " << delta_e << endl;
 #endif
-            atual = proximo;
+            atualS.id = proximo->id;
+            atualS.weight = proximo->weight;
             visitados[proximo->id] = true;
 
             Node *aux = caminho;
