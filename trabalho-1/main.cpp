@@ -8,7 +8,7 @@ int main(void)
     a.imprime_mapa();
     Agente ag(&a);
 
-    ag.andar();
+    int tam_caminho = ag.tempera_simulada();
     ag.imprime_caminho();
 
     return 0;
