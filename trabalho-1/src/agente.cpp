@@ -22,8 +22,24 @@ Agente::Agente(Ambiente *ambiente)
 
 Agente::~Agente()
 {
-    delete[] visitados;
+    if (visitados != nullptr)
+        delete[] visitados;
+    if (caminho != nullptr)
+        delete caminho;
+}
+
+void Agente::reset()
+{
+    this->cidades_visitadas = 0;
+
+    delete[] this->visitados;
+    this->visitados = nullptr;
+    this->visitados = new bool[this->qtd_cidades];
+    for (int i = 0; i < this->qtd_cidades; i++)
+        this->visitados[i] = false;
+
     delete caminho;
+    caminho = nullptr;
 }
 
 int Agente::computa_media_caminhos_vizinhos(Node *cidade)
@@ -56,7 +72,7 @@ int Agente::escolhe_aleatorio(int limite)
     return rand() % limite;
 }
 
-int Agente::tempera_simulada()
+int Agente::tempera_simulada(int *erro)
 {
     State atualS;
     Node *proximo, *atual, *aux;
@@ -70,11 +86,11 @@ int Agente::tempera_simulada()
     atualS.id = origem;
     atualS.weight = this->computa_media_caminhos_vizinhos(atual);
 
-    t = ambiente->get_tam_mapa() * 1.5;
 #ifdef DEBUG
     cout << "t " << t << endl;
 #endif
 
+    t = ambiente->get_tam_mapa() * 1.5;
     for (int i = 0; i < t; i++)
     {
         int proximo_vizinho = 0;
@@ -139,9 +155,13 @@ int Agente::tempera_simulada()
 #endif
 
         if (cidades_visitadas == qtd_cidades)
+        {
+            *erro = 0;
             return tam_caminho;
+        }
     }
 
+    *erro = 1;
     return tam_caminho;
 }
 
@@ -164,4 +184,37 @@ void Agente::imprime_caminho()
     cout << endl;
 
     cout << "tamanho do caminho: " << tam << endl;
+}
+
+void Agente::analise_tempera()
+{
+    int min = 1215752191, max = 0, result;
+    int erro, erros = 0;
+    float med = 0;
+
+    int rodadas = 1'000'00;
+    for (int i = 0; i < rodadas; i++)
+    {
+        result = this->tempera_simulada(&erro);
+        if (result < min)
+            min = result;
+        if (result > max)
+            max = result;
+        if (erro)
+            erros++;
+        med += result;
+        this->reset();
+    }
+
+    med /= rodadas;
+    cout
+        << "RESULTADOS DA TÊMPERA SIMULADA COM " << rodadas
+        << " EXECUÇÕES, NUM GRAFO COM " << this->qtd_cidades
+        << " VÉRTICES : " << endl;
+    cout
+        << "\tminimo: " << min
+        << ", média: " << med
+        << ", máximo: " << max
+        << ", erros: " << erros
+        << endl;
 }

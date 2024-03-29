@@ -1,15 +1,19 @@
 #include "include/ambiente.hpp"
 #include "include/agente.hpp"
+#include <iostream>
+
+using namespace std;
 
 int main(void)
 {
     Ambiente a;
 
-    a.imprime_mapa();
+    // a.imprime_mapa();
     Agente ag(&a);
 
-    int tam_caminho = ag.tempera_simulada();
-    ag.imprime_caminho();
+    // for (int i = 0; i < 100; i++)
+    //     cout << ag.tempera_simulada() << endl;
+    ag.analise_tempera();
 
     return 0;
 }

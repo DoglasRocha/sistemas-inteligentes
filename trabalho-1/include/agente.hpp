@@ -18,9 +18,11 @@ class Agente
 public:
     Agente(Ambiente *ambiente);
     ~Agente();
+    void reset();
     int escolhe_aleatorio(int limite);
-    int tempera_simulada();
+    int tempera_simulada(int *percorreu_tudo);
     int computa_media_caminhos_vizinhos(Node *cidade);
     int computa_qtd_vizinhos(Node *cidade);
+    void analise_tempera();
     void imprime_caminho();
 };
