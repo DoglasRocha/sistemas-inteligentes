@@ -32,6 +32,8 @@ public:
     int computa_qtd_vizinhos(Node *cidade);
     void analise_tempera();
     void imprime_caminho();
-    int algoritmo_genetico(int *erro);
+    int setup_algoritmo_genetico(int *erro);
+    int funcao_adaptacao(int *custo_caminhos, int tamanho_populacao);
+    int algoritmo_genetico(int **populacao, int tamanho_populacao, int *custo_caminhos);
     void analise_genetico();
 };

@@ -15,7 +15,7 @@ int main(void)
     // for (int i = 0; i < 100; i++)
     //     cout << ag.tempera_simulada() << endl;
     // ag.analise_tempera();
-    ag.algoritmo_genetico(&erro);
+    ag.setup_algoritmo_genetico(&erro);
 
     return 0;
 }
