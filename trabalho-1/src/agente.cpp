@@ -38,7 +38,7 @@ void Agente::reset()
     for (int i = 0; i < this->qtd_cidades; i++)
         this->visitados[i] = false;
 
-    delete caminho;
+    // delete caminho;
     caminho = nullptr;
 }
 
@@ -204,6 +204,7 @@ void Agente::analise_tempera()
             erros++;
         med += result;
         this->reset();
+        delete this->caminho;
     }
 
     med /= rodadas;
@@ -217,4 +218,27 @@ void Agente::analise_tempera()
         << ", máximo: " << max
         << ", erros: " << erros
         << endl;
+}
+
+int Agente::algoritmo_genetico(int *erro)
+{
+    int tam_pop = 8;
+    int erro_ = 0;
+    Node **caminhos = new Node *[tam_pop];
+    int *custo_caminhos = new int[tam_pop];
+
+    for (int i = 0; i < tam_pop; i++)
+    {
+        custo_caminhos[i] = this->tempera_simulada(&erro_);
+        caminhos[i] = this->caminho;
+        imprime_caminho();
+        cout << custo_caminhos[i] << endl;
+        this->reset();
+    }
+
+    return 0;
+}
+
+void Agente::analise_genetico()
+{
 }
