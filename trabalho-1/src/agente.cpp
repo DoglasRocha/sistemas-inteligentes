@@ -194,7 +194,7 @@ void Agente::analise_tempera()
     int erro, erros = 0;
     float med = 0;
 
-    int rodadas = 1'000'00;
+    int rodadas = 10'000;
     for (int i = 0; i < rodadas; i++)
     {
         result = this->tempera_simulada(&erro);
@@ -213,7 +213,7 @@ void Agente::analise_tempera()
     cout
         << "RESULTADOS DA TÊMPERA SIMULADA COM " << rodadas
         << " EXECUÇÕES, NUM GRAFO COM " << this->qtd_cidades
-        << " VÉRTICES : " << endl;
+        << " VÉRTICES: " << endl;
     cout
         << "\tminimo: " << min
         << ", média: " << med
@@ -361,41 +361,44 @@ void Agente::mutacao(int *fita, int tamanho_fita)
 
 int Agente::algoritmo_genetico(int **populacao, int tamanho_populacao, int *custo_caminhos, int geracoes)
 {
-    if (geracoes == 0)
+    int **nova_populacao, *novos_caminhos;
+
+    for (int k = 0; k < geracoes; k++)
     {
-        int result = this->computa_caminho_vetor(
-            populacao[this->retorna_indice_mais_adaptado(
-                custo_caminhos, tamanho_populacao)],
-            this->qtd_cidades);
+        nova_populacao = new int *[tamanho_populacao];
+        novos_caminhos = new int[tamanho_populacao];
+        int indice_pai, indice_mae;
+
+        for (int i = 0; i < tamanho_populacao; i++)
+        {
+            indice_pai = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
+            indice_mae = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
+            nova_populacao[i] = this->reproduz(populacao[indice_pai], populacao[indice_mae], this->qtd_cidades);
+            if ((float)rand() / RAND_MAX <= 0.10)
+                this->mutacao(nova_populacao[i], this->qtd_cidades);
+
+            novos_caminhos[i] = this->computa_caminho_vetor(nova_populacao[i], this->qtd_cidades);
+        }
 
         delete[] custo_caminhos;
         for (int i = 0; i < tamanho_populacao; i++)
             delete[] populacao[i];
         delete[] populacao;
-
-        return result;
+        populacao = nova_populacao;
+        custo_caminhos = novos_caminhos;
     }
 
-    int **nova_populacao = new int *[tamanho_populacao];
-    int *novos_caminhos = new int[tamanho_populacao];
-    int indice_pai, indice_mae;
-
-    for (int i = 0; i < tamanho_populacao; i++)
-    {
-        indice_pai = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
-        indice_mae = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
-        nova_populacao[i] = this->reproduz(populacao[indice_pai], populacao[indice_mae], this->qtd_cidades);
-        if ((float)rand() / RAND_MAX <= 0.10)
-            this->mutacao(nova_populacao[i], this->qtd_cidades);
-
-        novos_caminhos[i] = this->computa_caminho_vetor(nova_populacao[i], this->qtd_cidades);
-    }
+    int result = this->computa_caminho_vetor(
+        populacao[this->retorna_indice_mais_adaptado(
+            custo_caminhos, tamanho_populacao)],
+        this->qtd_cidades);
 
     delete[] custo_caminhos;
     for (int i = 0; i < tamanho_populacao; i++)
         delete[] populacao[i];
     delete[] populacao;
-    return this->algoritmo_genetico(nova_populacao, tamanho_populacao, novos_caminhos, geracoes - 1);
+
+    return result;
 }
 
 void Agente::analise_genetico()
@@ -403,10 +406,10 @@ void Agente::analise_genetico()
     int min = 1215752191, max = 0, result;
     float med = 0;
 
-    int rodadas = 1'000;
+    int rodadas = 100;
     for (int i = 0; i < rodadas; i++)
     {
-        result = this->setup_algoritmo_genetico(20, 100);
+        result = this->setup_algoritmo_genetico(20, 2000);
         if (result < min)
             min = result;
         if (result > max)
@@ -418,7 +421,7 @@ void Agente::analise_genetico()
     cout
         << "RESULTADOS DO ALGORITMO GENÉTICO COM " << rodadas
         << " EXECUÇÕES, NUM GRAFO COM " << this->qtd_cidades
-        << " VÉRTICES : " << endl;
+        << " VÉRTICES: " << endl;
     cout
         << "\tminimo: " << min
         << ", média: " << med

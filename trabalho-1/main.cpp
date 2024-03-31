@@ -13,7 +13,7 @@ int main(void)
 
     // for (int i = 0; i < 100; i++)
     //     cout << ag.tempera_simulada() << endl;
-    // ag.analise_tempera();
+    ag.analise_tempera();
     ag.analise_genetico();
 
     return 0;
