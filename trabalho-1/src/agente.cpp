@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <bits/stdc++.h>
 
 // #define DEBUG
 
@@ -18,6 +19,8 @@ Agente::Agente(Ambiente *ambiente)
     this->visitados = new bool[this->qtd_cidades];
     for (int i = 0; i < this->qtd_cidades; i++)
         this->visitados[i] = false;
+
+    this->caminho = nullptr;
 }
 
 Agente::~Agente()
@@ -33,7 +36,6 @@ void Agente::reset()
     this->cidades_visitadas = 0;
 
     delete[] this->visitados;
-    this->visitados = nullptr;
     this->visitados = new bool[this->qtd_cidades];
     for (int i = 0; i < this->qtd_cidades; i++)
         this->visitados[i] = false;
@@ -220,114 +222,206 @@ void Agente::analise_tempera()
         << endl;
 }
 
-int Agente::setup_algoritmo_genetico(int *erro)
+void Agente::preenche_vetor_aleatorio(int *vetor, int tamanho)
 {
-    int tam_pop = 8;
-    int erro_ = 0;
+    for (int i = 0; i < tamanho; i++)
+        vetor[i] = i;
+
+    random_shuffle(vetor, vetor + tamanho);
+}
+
+int Agente::computa_caminho_vetor(int *vetor, int tamanho)
+{
+    int caminho = 0;
     Node *aux;
-    int *custo_caminhos = new int[tam_pop];
-    int **cromossomo = new int *[tam_pop];
 
-    for (int i = 0; i < tam_pop; i++)
+    for (int i = 0; i < tamanho - 1; i++)
     {
-        custo_caminhos[i] = this->tempera_simulada(&erro_);
+        aux = this->ambiente->get_cidade(vetor[i]);
 
-        if (erro_ == 1)
-        {
-            i--;
-            continue;
-        }
-
-        aux = this->caminho;
-
-        cromossomo[i] = new int[this->qtd_cidades];
-        for (int j = 0; j < this->qtd_cidades; j++)
-        {
-            cromossomo[i][j] = aux->id;
+        while (aux->id != vetor[i + 1])
             aux = aux->next;
-        }
 
-        this->reset();
+        caminho += aux->weight;
     }
 
-    int result = this->algoritmo_genetico(cromossomo, tam_pop, custo_caminhos);
-    // População construída, faltam:
-    // Tratamento de crossover
-    // Tratamento de mutações
+    // final ate a origem
+    aux = this->ambiente->get_cidade(vetor[tamanho - 1]);
 
-    return 0;
+    while (aux->id != vetor[0])
+        aux = aux->next;
+    caminho += aux->weight;
+
+    return caminho;
+}
+
+int Agente::setup_algoritmo_genetico(int tamanho_populacao, int geracoes)
+{
+    int *custo_caminhos = new int[tamanho_populacao];
+    int **cromossomo = new int *[tamanho_populacao];
+
+    for (int i = 0; i < tamanho_populacao; i++)
+    {
+        cromossomo[i] = new int[this->qtd_cidades];
+        preenche_vetor_aleatorio(cromossomo[i], this->qtd_cidades);
+        custo_caminhos[i] = computa_caminho_vetor(cromossomo[i], this->qtd_cidades);
+    }
+
+    int result = this->algoritmo_genetico(cromossomo, tamanho_populacao, custo_caminhos, geracoes);
+
+    return result;
 }
 
 int Agente::funcao_adaptacao(int *custo_caminhos, int tamanho_populacao)
 {
-    float *probs_provisorias = new float[tamanho_populacao];
-    float *probs_normalizadas = new float[tamanho_populacao];
-    int sum_caminhos = 0;
-    float sum_probs = 0;
+    double *probs = new double[tamanho_populacao];
+    double sum_caminhos = 0;
     float roleta = (float)rand() / RAND_MAX;
 
     for (int i = 0; i < tamanho_populacao; i++)
-        sum_caminhos += custo_caminhos[i];
+        sum_caminhos += (double)1 / custo_caminhos[i];
 
     for (int i = 0; i < tamanho_populacao; i++)
-        probs_provisorias[i] = (sum_caminhos - custo_caminhos[i]) / (float)sum_caminhos;
-
-    for (int i = 0; i < tamanho_populacao; i++)
-        sum_probs += probs_provisorias[i];
-
-    for (int i = 0; i < tamanho_populacao; i++)
-        probs_normalizadas[i] = probs_provisorias[i] / sum_probs;
+        probs[i] = ((double)1 / custo_caminhos[i]) / sum_caminhos;
 
     float anterior = 0;
     for (int i = 0; i < tamanho_populacao; i++)
     {
-        if (roleta >= anterior && roleta <= anterior + probs_normalizadas[i])
+        if (roleta >= anterior && roleta <= anterior + probs[i])
+        {
+            delete[] probs;
             return i;
-        anterior += probs_normalizadas[i];
+        }
+        anterior += probs[i];
     }
 
+    delete[] probs;
     return -1;
 }
 
-int Agente::algoritmo_genetico(int **populacao, int tamanho_populacao, int *custo_caminhos)
+int Agente::retorna_indice_mais_adaptado(int *custo_caminhos, int tamanho_populacao)
 {
+    double *probs = new double[tamanho_populacao];
+    double sum_caminhos = 0;
+    int index_maior = 0;
+
     for (int i = 0; i < tamanho_populacao; i++)
+        sum_caminhos += (double)1 / custo_caminhos[i];
+
+    for (int i = 0; i < tamanho_populacao; i++)
+        probs[i] = ((double)1 / custo_caminhos[i]) / sum_caminhos;
+
+    float anterior = 0;
+    for (int i = 1; i < tamanho_populacao; i++)
     {
-        cout << this->funcao_adaptacao(custo_caminhos, tamanho_populacao) << endl;
+        if (probs[i] > probs[index_maior])
+            index_maior = i;
     }
 
-    return 0;
+    delete[] probs;
+    return index_maior;
+}
+
+int *Agente::reproduz(int *pai, int *mae, int tamanho_fita)
+{
+    int corte = 1 + rand() % (tamanho_fita - 2);
+    int *filho = new int[tamanho_fita];
+    bool *colocados = new bool[tamanho_fita];
+    for (int i = 0; i < tamanho_fita; i++)
+        colocados[i] = false;
+
+    for (int i = 0; i < corte; i++)
+    {
+        filho[i] = pai[i];
+        colocados[pai[i]] = true;
+    }
+
+    for (int i = 0; i < tamanho_fita && corte < tamanho_fita; i++)
+    {
+        if (colocados[mae[i]])
+            continue;
+
+        filho[corte] = mae[i];
+        colocados[mae[i]] = true;
+        corte++;
+    }
+
+    delete[] colocados;
+    return filho;
+}
+
+void Agente::mutacao(int *fita, int tamanho_fita)
+{
+    int p1 = rand() % tamanho_fita;
+    int p2 = rand() % tamanho_fita;
+    int tmp = fita[p1];
+    fita[p1] = fita[p2];
+    fita[p2] = tmp;
+}
+
+int Agente::algoritmo_genetico(int **populacao, int tamanho_populacao, int *custo_caminhos, int geracoes)
+{
+    if (geracoes == 0)
+    {
+        int result = this->computa_caminho_vetor(
+            populacao[this->retorna_indice_mais_adaptado(
+                custo_caminhos, tamanho_populacao)],
+            this->qtd_cidades);
+
+        delete[] custo_caminhos;
+        for (int i = 0; i < tamanho_populacao; i++)
+            delete[] populacao[i];
+        delete[] populacao;
+
+        return result;
+    }
+
+    int **nova_populacao = new int *[tamanho_populacao];
+    int *novos_caminhos = new int[tamanho_populacao];
+    int indice_pai, indice_mae;
+
+    for (int i = 0; i < tamanho_populacao; i++)
+    {
+        indice_pai = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
+        indice_mae = this->funcao_adaptacao(custo_caminhos, tamanho_populacao);
+        nova_populacao[i] = this->reproduz(populacao[indice_pai], populacao[indice_mae], this->qtd_cidades);
+        if ((float)rand() / RAND_MAX <= 0.10)
+            this->mutacao(nova_populacao[i], this->qtd_cidades);
+
+        novos_caminhos[i] = this->computa_caminho_vetor(nova_populacao[i], this->qtd_cidades);
+    }
+
+    delete[] custo_caminhos;
+    for (int i = 0; i < tamanho_populacao; i++)
+        delete[] populacao[i];
+    delete[] populacao;
+    return this->algoritmo_genetico(nova_populacao, tamanho_populacao, novos_caminhos, geracoes - 1);
 }
 
 void Agente::analise_genetico()
 {
-    // int min = 1215752191, max = 0, result;
-    // int erro, erros = 0;
-    // float med = 0;
+    int min = 1215752191, max = 0, result;
+    float med = 0;
 
-    // int rodadas = 10'000;
-    // for (int i = 0; i < rodadas; i++)
-    // {
-    //     result = this->algoritmo_genetico(&erro);
-    //     if (result < min)
-    //         min = result;
-    //     if (result > max)
-    //         max = result;
-    //     if (erro)
-    //         erros++;
-    //     med += result;
-    //     this->reset();
-    //     delete this->caminho;
-    // }
+    int rodadas = 1'000;
+    for (int i = 0; i < rodadas; i++)
+    {
+        result = this->setup_algoritmo_genetico(20, 100);
+        if (result < min)
+            min = result;
+        if (result > max)
+            max = result;
+        med += result;
+    }
 
-    // med /= rodadas;
-    // cout
-    //     << "RESULTADOS DO ALGORITMO GENÉTICO COM " << rodadas
-    //     << " EXECUÇÕES, NUM GRAFO COM " << this->qtd_cidades
-    //     << " VÉRTICES : " << endl;
-    // cout
-    //     << "\tminimo: " << min
-    //     << ", média: " << med
-    //     << ", máximo: " << max
-    //     << endl;
+    med /= rodadas;
+    cout
+        << "RESULTADOS DO ALGORITMO GENÉTICO COM " << rodadas
+        << " EXECUÇÕES, NUM GRAFO COM " << this->qtd_cidades
+        << " VÉRTICES : " << endl;
+    cout
+        << "\tminimo: " << min
+        << ", média: " << med
+        << ", máximo: " << max
+        << endl;
 }
