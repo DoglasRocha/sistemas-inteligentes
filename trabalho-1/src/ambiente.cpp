@@ -8,7 +8,7 @@ using namespace std;
 
 Ambiente::Ambiente()
 {
-    ifstream arquivoGrafo("bays29.txt"); // Primeira leitura, contagem de vértices
+    ifstream arquivoGrafo("grafo.txt"); // Primeira leitura, contagem de vértices
     int numVertices = 1;
 
     if (arquivoGrafo.is_open())
@@ -26,7 +26,7 @@ Ambiente::Ambiente()
 
     arquivoGrafo.close();
 
-    arquivoGrafo.open("bays29.txt"); // Segunda leitura, construção das arestas
+    arquivoGrafo.open("grafo.txt"); // Segunda leitura, construção das arestas
 
     if (arquivoGrafo.is_open())
     {

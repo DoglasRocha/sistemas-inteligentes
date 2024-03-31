@@ -275,14 +275,19 @@ int Agente::setup_algoritmo_genetico(int tamanho_populacao, int geracoes)
 int Agente::funcao_adaptacao(int *custo_caminhos, int tamanho_populacao)
 {
     double *probs = new double[tamanho_populacao];
+    int menor = 999999999;
     double sum_caminhos = 0;
     float roleta = (float)rand() / RAND_MAX;
 
     for (int i = 0; i < tamanho_populacao; i++)
-        sum_caminhos += (double)1 / custo_caminhos[i];
+        if (custo_caminhos[i] < menor)
+            menor = custo_caminhos[i];
 
     for (int i = 0; i < tamanho_populacao; i++)
-        probs[i] = ((double)1 / custo_caminhos[i]) / sum_caminhos;
+        sum_caminhos += (double)1 / (custo_caminhos[i] - (menor * 0.95));
+
+    for (int i = 0; i < tamanho_populacao; i++)
+        probs[i] = ((double)1 / (custo_caminhos[i] - (menor * 0.95))) / sum_caminhos;
 
     float anterior = 0;
     for (int i = 0; i < tamanho_populacao; i++)
@@ -406,10 +411,10 @@ void Agente::analise_genetico()
     int min = 1215752191, max = 0, result;
     float med = 0;
 
-    int rodadas = 100;
+    int rodadas = 1000;
     for (int i = 0; i < rodadas; i++)
     {
-        result = this->setup_algoritmo_genetico(20, 2000);
+        result = this->setup_algoritmo_genetico(4, 100);
         if (result < min)
             min = result;
         if (result > max)
