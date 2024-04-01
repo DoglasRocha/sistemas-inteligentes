@@ -206,7 +206,7 @@ void Agente::analise_tempera()
             erros++;
         med += result;
         this->reset();
-        delete this->caminho;
+        // delete this->caminho;
     }
 
     med /= rodadas;
@@ -332,6 +332,7 @@ int *Agente::reproduz(int *pai, int *mae, int tamanho_fita)
     int corte = 1 + rand() % (tamanho_fita - 2);
     int *filho = new int[tamanho_fita];
     bool *colocados = new bool[tamanho_fita];
+
     for (int i = 0; i < tamanho_fita; i++)
         colocados[i] = false;
 
@@ -411,10 +412,10 @@ void Agente::analise_genetico()
     int min = 1215752191, max = 0, result;
     float med = 0;
 
-    int rodadas = 1000;
+    int rodadas = 500;
     for (int i = 0; i < rodadas; i++)
     {
-        result = this->setup_algoritmo_genetico(4, 100);
+        result = this->setup_algoritmo_genetico(10, 100);
         if (result < min)
             min = result;
         if (result > max)
